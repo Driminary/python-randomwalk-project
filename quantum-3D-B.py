@@ -30,7 +30,7 @@ from mpl_toolkits.mplot3d import Axes3D # Import 3D plotting
 ############################################################
 
 # Define the positions and number of steps
-N = 20      # number of random steps
+N = 40      # number of random steps
 P = 2*N+1    # number of positions
 
 # Define the two states a quantum coin can be in a superposition of
@@ -54,20 +54,20 @@ S_hat = np.kron(ShiftPlus, C00) + np.kron(ShiftMinus, C11)
 # From all of these, define the walk operator
 U = S_hat.dot(np.kron(np.eye(P), C_hat)) # This is the operation to be repeated
 
-# Set the time
-time = np.arange(N+1)
+# Set the angle
+theta = np.arange(91)
 
 # Set the values of all positions on the line to 0 except the initial position
 posn0 = np.zeros(P)
 posn0[N] = 1 # 2N+1 Positions, index starts at 0 so middle is at N
 
-psi0 = np.kron(posn0,(coin0+coin1*1j)/np.sqrt(2.)) # Set the initial coin state
+prob = np.empty((91,P)) # Initialise the array of probabilities
 
-prob = np.empty((N+1,P)) # Initialise the array of probabilities
-
-for j in time:
+for j in theta:
+        
+    psi0 = np.kron(posn0,((np.cos(np.deg2rad(j))*coin0)+(np.sin(np.deg2rad(j))*coin1*1j))) # Set the initial coin state
     
-    psiN = np.linalg.matrix_power(U, j).dot(psi0) # Work out the state of the system after N walks
+    psiN = np.linalg.matrix_power(U, N).dot(psi0) # Work out the state of the system after N walks
     
     # Iterate through each position
     for k in range(P):
@@ -78,7 +78,7 @@ for j in time:
         prob[j][k] = proj.dot(proj.conjugate()).real # Calculate the probability of the particle being here
       
 # Set the x and y values
-xval, yval = np.arange(P), time
+xval, yval = np.arange(P), theta
 
 # Mesh the x and y values together
 xval, yval = np.meshgrid(xval, yval)
@@ -94,7 +94,7 @@ plt.xticks(loc) # Set the x axis ticks
 plt.xlim(0, P) # Set the limits of the x axis
 ax.set_xticklabels(range (-N, N+1, P / 10)) # Set the labels of the x axis
 plt.xlabel("Position") # Set x label
-plt.ylabel("Time") # Set y label
+plt.ylabel("Theta") # Set y label
 ax.set_zlabel("Probability") # Set z label
 
 plt.show() # Show the graph
